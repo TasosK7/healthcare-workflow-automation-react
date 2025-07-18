@@ -27,6 +27,9 @@ const Patient = () => {
     const [selectedDate, setSelectedDate] = useState<string>("");
 
 
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -72,6 +75,36 @@ const Patient = () => {
         } catch (error) {
             console.error("Failed to book appointment", error);
             alert("Failed to book appointment.");
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && file.type === "application/pdf") {
+            setSelectedFile(file);
+        } else {
+            setSelectedFile(null);
+            setUploadStatus("Please upload a valid PDF file.");
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        try {
+            await api.post("/lab-tests/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            setUploadStatus("Upload successful!");
+            setSelectedFile(null);
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Upload failed.");
         }
     };
 
@@ -182,6 +215,46 @@ const Patient = () => {
                             </button>
                         </form>
                     </div>
+                    {/* File Upload Form */}
+                    <div className="mt-6 p-6 border rounded-xl bg-white shadow-md">
+                        <h2 className="text-lg font-semibold mb-4">Upload Lab Test Results (PDF)</h2>
+
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <input
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
+                 file:rounded-lg file:border-0
+                 file:text-sm file:font-semibold
+                 file:bg-blue-50 file:text-blue-700
+                 hover:file:bg-blue-100"
+                            />
+
+                            <button
+                                onClick={handleUpload}
+                                disabled={!selectedFile}
+                                className={`px-5 py-2 rounded-lg text-white transition duration-150 ${
+                                    selectedFile
+                                        ? "bg-blue-600 hover:bg-blue-700"
+                                        : "bg-gray-400 cursor-not-allowed"
+                                }`}
+                            >
+                                Upload
+                            </button>
+                        </div>
+
+                        {uploadStatus && (
+                            <p className="mt-3 text-sm">
+                                {uploadStatus.includes("successful") ? (
+                                    <span className="text-green-600">{uploadStatus}</span>
+                                ) : (
+                                    <span className="text-red-600">{uploadStatus}</span>
+                                )}
+                            </p>
+                        )}
+                    </div>
+
 
 
                 </div>
