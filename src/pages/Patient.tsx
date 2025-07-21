@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react';
 import Topbar from '../components/Topbar';
 import api from '../services/api';
-import type {Staff} from '../services/users'
-
-interface Patient {
-    id: number;
-    user_id: number;
-    first_name: string;
-    last_name: string;
-}
+import type {Staff, Patient} from '../services/users'
 
 interface Appointment {
     id: number;
@@ -17,6 +10,14 @@ interface Appointment {
     status: string;
     staff_name: string;
 }
+
+interface DiagnosedTest {
+    id: number;
+    result_file_url: string;
+    diagnosis: string;
+    staff_name: string;
+}
+
 
 const Patient = () => {
     const [patient, setPatient] = useState<Patient | null>(null);
@@ -30,6 +31,11 @@ const Patient = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
+    const [diagnosedTests, setDiagnosedTests] = useState<DiagnosedTest[]>([]);
+
+    const [downloadLinks, setDownloadLinks] = useState<{ [key: number]: string }>({});
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -38,6 +44,10 @@ const Patient = () => {
 
                 const resAppointments = await api.get('/appointments/me');
                 setAppointments(resAppointments.data);
+
+                const resDiagnosis = await api.get("/lab-tests/diagnosed/me");
+                setDiagnosedTests(resDiagnosis.data);
+
             } catch (error) {
                 console.error("Failed to fetch data", error);
             }
@@ -56,6 +66,17 @@ const Patient = () => {
         fetchStaff();
 
     }, []);
+
+    const getDownloadLink = async (testId: number): Promise<string | null> => {
+        try {
+            const res = await api.get(`/lab-tests/download-url/${testId}`);
+            return res.data.url;
+        } catch (err) {
+            console.error("Download URL error:", err);
+            return null;
+        }
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -255,9 +276,64 @@ const Patient = () => {
                         )}
                     </div>
 
+                    <div className="mt-6 p-6 border rounded-xl bg-white shadow-md">
+                        <h2 className="text-lg font-semibold mb-4">My Diagnoses</h2>
+
+                        {diagnosedTests.length === 0 ? (
+                            <p className="text-gray-600">No diagnoses available yet.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full table-auto border border-gray-200">
+                                    <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="text-left px-4 py-2 border">Staff Member</th>
+                                        <th className="text-left px-4 py-2 border">Diagnosis</th>
+                                        <th className="text-left px-4 py-2 border">Lab Test</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {diagnosedTests.map(test => (
+                                        <tr key={test.id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-2 border">{test.staff_name}</td>
+                                            <td className="px-4 py-2 border">{test.diagnosis || "No diagnosis yet"}</td>
+                                            <td className="px-4 py-2 border">
+                                                {downloadLinks[test.id] ? (
+                                                    <a
+                                                        href={downloadLinks[test.id]}
+                                                        download
+                                                        className="text-blue-600 underline"
+                                                    >
+                                                        Download PDF
+                                                    </a>
+                                                ) : (
+                                                    <button
+                                                        onClick={async () => {
+                                                            const url = await getDownloadLink(test.id);
+                                                            if (url) {
+                                                                setDownloadLinks((prev) => ({ ...prev, [test.id]: url }));
+                                                            }
+                                                        }}
+                                                        className="text-blue-600 underline"
+                                                    >
+                                                        Get Download Link
+                                                    </button>
+                                                )}
+                                            </td>
+
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+
 
 
                 </div>
+
+
             </div>
         </div>
     );
