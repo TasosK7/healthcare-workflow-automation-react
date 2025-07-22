@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Topbar from '../components/Topbar';
+import {AxiosError} from "axios";
 import api from '../services/api';
 import type {Staff, Patient} from '../services/users'
 
@@ -34,6 +35,9 @@ const Patient = () => {
     const [diagnosedTests, setDiagnosedTests] = useState<DiagnosedTest[]>([]);
 
     const [downloadLinks, setDownloadLinks] = useState<{ [key: number]: string }>({});
+
+    const [bookingError, setBookingError] = useState<string | null>(null);
+
 
 
     useEffect(() => {
@@ -80,6 +84,7 @@ const Patient = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setBookingError(null);
         try {
             await api.post("/appointments/book", {
                 patient_id: 0, // dummy, will be ignored by backend
@@ -93,9 +98,14 @@ const Patient = () => {
             setSelectedDate("");
             setSelectedStaff("");
             alert("Appointment booked!");
-        } catch (error) {
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError<{ detail: string }>;
             console.error("Failed to book appointment", error);
-            alert("Failed to book appointment.");
+            if (axiosError.response && axiosError.response.status === 400) {
+                setBookingError(axiosError.response.data?.detail || "Booking error.");
+            } else {
+                setBookingError("An unexpected error occurred.");
+            }
         }
     };
 
@@ -235,6 +245,12 @@ const Patient = () => {
                                 Book Appointment
                             </button>
                         </form>
+                        {bookingError && (
+                            <div className="text-red-600 text-sm mt-2">
+                                {bookingError}
+                            </div>
+                        )}
+
                     </div>
                     {/* File Upload Form */}
                     <div className="mt-6 p-6 border rounded-xl bg-white shadow-md">
