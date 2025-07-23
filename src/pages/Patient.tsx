@@ -120,10 +120,11 @@ const Patient = () => {
     };
 
     const handleUpload = async () => {
-        if (!selectedFile) return;
+        if (!selectedFile || !selectedStaff) return;
 
         const formData = new FormData();
         formData.append("file", selectedFile);
+        formData.append("staff_id", selectedStaff.toString());
 
         try {
             await api.post("/lab-tests/upload", formData, {
@@ -133,6 +134,7 @@ const Patient = () => {
             });
             setUploadStatus("Upload successful!");
             setSelectedFile(null);
+            setSelectedStaff("");
         } catch (error) {
             console.error("Upload error:", error);
             setUploadStatus("Upload failed.");
@@ -256,6 +258,22 @@ const Patient = () => {
                     <div className="mt-6 p-6 border rounded-xl bg-white shadow-md">
                         <h2 className="text-lg font-semibold mb-4">Upload Lab Test Results (PDF)</h2>
 
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Staff</label>
+                            <select
+                                value={selectedStaff}
+                                onChange={(e) => setSelectedStaff(parseInt(e.target.value))}
+                                className="block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm"
+                            >
+                                <option value="">-- Choose Staff --</option>
+                                {staffList.map((staff) => (
+                                    <option key={staff.id} value={staff.id}>
+                                        {staff.first_name} {staff.last_name} ({staff.role})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                             <input
                                 type="file"
@@ -267,6 +285,7 @@ const Patient = () => {
                  file:bg-blue-50 file:text-blue-700
                  hover:file:bg-blue-100"
                             />
+
 
                             <button
                                 onClick={handleUpload}
