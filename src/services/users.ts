@@ -7,6 +7,7 @@ export interface Staff {
     last_name: string;
     department_id?: number;
     role: string;
+    department_name: string;
 }
 
 export interface Patient {

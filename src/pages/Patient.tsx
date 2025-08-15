@@ -221,7 +221,7 @@ const Patient = () => {
                                     <option value="">-- Choose --</option>
                                     {staffList.map((s) => (
                                         <option key={s.id} value={s.id}>
-                                            {s.first_name} {s.last_name} ({s.role})
+                                            {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
                                         </option>
                                     ))}
                                 </select>
@@ -234,6 +234,7 @@ const Patient = () => {
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
+                                    min={new Date().toISOString().split("T")[0]}
                                     className="w-full border rounded px-3 py-2"
                                     required
                                 />
@@ -266,9 +267,9 @@ const Patient = () => {
                                 className="block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm"
                             >
                                 <option value="">-- Choose Staff --</option>
-                                {staffList.map((staff) => (
-                                    <option key={staff.id} value={staff.id}>
-                                        {staff.first_name} {staff.last_name} ({staff.role})
+                                {staffList.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
                                     </option>
                                 ))}
                             </select>

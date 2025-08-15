@@ -85,6 +85,18 @@ const Staff = () => {
         }
     };
 
+    const handleRejectAppointment = async (appointmentId: number) => {
+        try {
+            await api.patch(`/appointments/${appointmentId}/reject`);
+            const res = await api.get("/appointments/staff/me");
+            setAppointments(res.data);
+        } catch (err) {
+            console.error("Failed to reject appointment", err);
+            alert("Could not reject appointment.");
+        }
+    };
+
+
 
     return (
         <div>
@@ -102,6 +114,9 @@ const Staff = () => {
                                 </div>
                                 <div>
                                     <p className="text-gray-700"><span className="font-semibold">Last Name:</span> {staff.last_name}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-700"><span className="font-semibold">Department:</span> {staff.department_name || "No department"}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-700"><span className="font-semibold">Role:</span> {staff.role}</p>
@@ -136,23 +151,38 @@ const Staff = () => {
               className={`px-2 py-1 rounded-full text-sm font-semibold
               ${appt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   appt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-700'}`}
+                      appt.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-700'}`}
           >
             {appt.status}
           </span>
                                             </td>
                                             <td className="px-4 py-2 border">
-                                                <button
-                                                    disabled={appt.status === "confirmed"}
-                                                    onClick={() => handleApproveAppointment(appt.id)}
-                                                    className={`px-3 py-1 rounded text-white font-semibold transition ${
-                                                        appt.status === "confirmed"
-                                                            ? "bg-gray-300 cursor-not-allowed"
-                                                            : "bg-blue-600 hover:bg-blue-700"
-                                                    }`}
-                                                >
-                                                    Approve
-                                                </button>
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        disabled={appt.status === "confirmed"}
+                                                        onClick={() => handleApproveAppointment(appt.id)}
+                                                        className={`px-3 py-1 rounded text-white font-semibold transition ${
+                                                            appt.status === "confirmed"
+                                                                ? "bg-gray-300 cursor-not-allowed"
+                                                                : "bg-blue-600 hover:bg-blue-700"
+                                                        }`}
+                                                    >
+                                                        Approve
+                                                    </button>
+
+                                                    <button
+                                                        disabled={appt.status !== "pending"}
+                                                        onClick={() => handleRejectAppointment(appt.id)}
+                                                        className={`px-3 py-1 rounded text-white font-semibold transition ${
+                                                            appt.status !== "pending"
+                                                                ? "bg-gray-300 cursor-not-allowed"
+                                                                : "bg-red-600 hover:bg-red-700"
+                                                        }`}
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
