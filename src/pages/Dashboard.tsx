@@ -117,7 +117,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Topbar />
+            {/*<Topbar />*/}
             {/*<Navbar />*/}
 
             <div className="p-6 space-y-10 max-w-6xl mx-auto">

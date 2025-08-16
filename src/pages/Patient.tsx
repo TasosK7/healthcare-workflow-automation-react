@@ -1,8 +1,33 @@
 import { useEffect, useState } from 'react';
-import Topbar from '../components/Topbar';
+// import Topbar from '../components/Topbar';
+import {
+    Container,
+    Paper,
+    Typography,
+    Box,
+    Grid,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    // Chip,
+    Button,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
+    Alert, TableContainer,
+    // TextField
+} from "@mui/material";
+import { motion } from "framer-motion";
+// import { DatePicker } from "@mui/x-date-pickers";
 import {AxiosError} from "axios";
 import api from '../services/api';
 import type {Staff, Patient} from '../services/users'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
+// import {CloudUpload} from "@mui/icons-material";
 
 interface Appointment {
     id: number;
@@ -31,12 +56,26 @@ const Patient = () => {
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+    const [bookingStatus, setBookingStatus] = useState<string | null>(null);
+
 
     const [diagnosedTests, setDiagnosedTests] = useState<DiagnosedTest[]>([]);
 
     const [downloadLinks, setDownloadLinks] = useState<{ [key: number]: string }>({});
 
-    const [bookingError, setBookingError] = useState<string | null>(null);
+    // const [bookingError, setBookingError] = useState<string | null>(null);
+
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
 
 
 
@@ -84,7 +123,7 @@ const Patient = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setBookingError(null);
+        setBookingStatus(null);
         try {
             await api.post("/appointments/book", {
                 patient_id: 0, // dummy, will be ignored by backend
@@ -97,14 +136,14 @@ const Patient = () => {
             setAppointments(resAppointments.data);
             setSelectedDate("");
             setSelectedStaff("");
-            alert("Appointment booked!");
+            setBookingStatus("Booking request successful");
         } catch (error: unknown) {
             const axiosError = error as AxiosError<{ detail: string }>;
             console.error("Failed to book appointment", error);
             if (axiosError.response && axiosError.response.status === 400) {
-                setBookingError(axiosError.response.data?.detail || "Booking error.");
+                setBookingStatus(axiosError.response.data?.detail || "Booking error.");
             } else {
-                setBookingError("An unexpected error occurred.");
+                setBookingStatus("An unexpected error occurred.");
             }
         }
     };
@@ -143,235 +182,266 @@ const Patient = () => {
 
 
     return (
-        <div>
-            <Topbar />
-            <div className="p-8 bg-gray-50 min-h-screen">
-                <div className="max-w-4xl mx-auto space-y-6">
+        <Box
+            sx={{
+                minHeight: "100vh",
+                py: 2,
+                background: "linear-gradient(135deg, #e3f2fd, #bbdefb)",
+            }}
+        >
+            <Container
+                maxWidth={false}
+                sx={{ px: 4, py: 2, height: "100%", overflow: "auto" }}  // ✅ auto scroll if needed
+            >
 
-                    {/* Profile Card */}
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <h1 className="text-2xl font-bold mb-4">My Profile</h1>
-                        {patient ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-gray-700"><span className="font-semibold">First Name:</span> {patient.first_name}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-700"><span className="font-semibold">Last Name:</span> {patient.last_name}</p>
-                                </div>
-                                {/*<div>*/}
-                                {/*    <p className="text-gray-700"><span className="font-semibold">Patient ID:</span> {patient.id}</p>*/}
-                                {/*</div>*/}
-                            </div>
-                        ) : (
-                            <p>Loading profile...</p>
-                        )}
-                    </div>
+            <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Grid container spacing={3}>
 
-                    {/* Appointments Card */}
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <h2 className="text-xl font-semibold mb-4">My Appointments</h2>
-                        {appointments.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-auto border border-gray-200">
-                                    <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="text-left px-4 py-2 border">Date</th>
-                                        <th className="text-left px-4 py-2 border">Staff</th>
-                                        <th className="text-left px-4 py-2 border">Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {appointments.map(appt => (
-                                        <tr key={appt.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border">{new Date(appt.date).toLocaleDateString()}</td>
-                                            <td className="px-4 py-2 border">{appt.staff_name}</td>
-                                            <td className="px-4 py-2 border">
-                                              <span
-                                                  className={`px-2 py-1 rounded-full text-sm font-semibold
-                                                  ${appt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                      appt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                                          'bg-gray-100 text-gray-700'}`}
-                                              >
-                                                {appt.status}
-                                              </span>
-                                            </td>                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <p className="text-gray-600">No appointments found.</p>
-                        )}
-                    </div>
-                    {/* Book Appointment Form */}
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <h2 className="text-xl font-semibold mb-4">Book New Appointment</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-
-                            {/* Staff Selector */}
-                            <div>
-                                <label className="block mb-1 font-medium">Select Staff Member</label>
-                                <select
-                                    value={selectedStaff}
-                                    onChange={(e) => setSelectedStaff(Number(e.target.value))}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                >
-                                    <option value="">-- Choose --</option>
-                                    {staffList.map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Date Picker */}
-                            <div>
-                                <label className="block mb-1 font-medium">Date</label>
-                                <input
-                                    type="date"
-                                    value={selectedDate}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                    min={new Date().toISOString().split("T")[0]}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                />
-                            </div>
-
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                            >
-                                Book Appointment
-                            </button>
-                        </form>
-                        {bookingError && (
-                            <div className="text-red-600 text-sm mt-2">
-                                {bookingError}
-                            </div>
-                        )}
-
-                    </div>
-                    {/* File Upload Form */}
-                    <div className="mt-6 p-6 border rounded-xl bg-white shadow-md">
-                        <h2 className="text-lg font-semibold mb-4">Upload Lab Test Results (PDF)</h2>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Staff</label>
-                            <select
-                                value={selectedStaff}
-                                onChange={(e) => setSelectedStaff(parseInt(e.target.value))}
-                                className="block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm"
-                            >
-                                <option value="">-- Choose Staff --</option>
-                                {staffList.map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                            <input
-                                type="file"
-                                accept="application/pdf"
-                                onChange={handleFileChange}
-                                className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
-                 file:rounded-lg file:border-0
-                 file:text-sm file:font-semibold
-                 file:bg-blue-50 file:text-blue-700
-                 hover:file:bg-blue-100"
-                            />
-
-
-                            <button
-                                onClick={handleUpload}
-                                disabled={!selectedFile}
-                                className={`px-5 py-2 rounded-lg text-white transition duration-150 ${
-                                    selectedFile
-                                        ? "bg-blue-600 hover:bg-blue-700"
-                                        : "bg-gray-400 cursor-not-allowed"
-                                }`}
-                            >
-                                Upload
-                            </button>
-                        </div>
-
-                        {uploadStatus && (
-                            <p className="mt-3 text-sm">
-                                {uploadStatus.includes("successful") ? (
-                                    <span className="text-green-600">{uploadStatus}</span>
+                        {/* Profile - Full width */}
+                        <Grid size={{ xs: 12 }}>
+                            <Paper elevation={6} sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+                                <Typography variant="h6" color="primary" gutterBottom>
+                                    My Profile
+                                </Typography>
+                                {patient ? (
+                                    <Grid container spacing={2}>
+                                        <Grid size={{ xs: 6 }}>
+                                            <p><strong>First Name:</strong> {patient.first_name}</p>
+                                        </Grid>
+                                        <Grid size={{ xs: 6 }}>
+                                            <p><strong>Last Name:</strong> {patient.last_name}</p>
+                                        </Grid>
+                                    </Grid>
                                 ) : (
-                                    <span className="text-red-600">{uploadStatus}</span>
+                                    <Typography>Loading profile...</Typography>
                                 )}
-                            </p>
-                        )}
-                    </div>
+                            </Paper>
+                        </Grid>
 
-                    <div className="mt-6 p-6 border rounded-xl bg-white shadow-md">
-                        <h2 className="text-lg font-semibold mb-4">My Diagnoses</h2>
+                        {/* Appointments + Diagnoses side by side */}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Paper elevation={6} sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+                                <Typography variant="h6" color="primary" gutterBottom>
+                                    My Appointments
+                                </Typography>
+                                {appointments.length ? (
+                                    <TableContainer sx={{ maxHeight: "28vh" }}>
+                                        <Table stickyHeader size="small">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell><strong>Date</strong></TableCell>
+                                                    <TableCell><strong>Staff</strong></TableCell>
+                                                    <TableCell><strong>Status</strong></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {appointments.map((appt) => (
+                                                    <TableRow key={appt.id}>
+                                                        <TableCell>{new Date(appt.date).toLocaleDateString()}</TableCell>
+                                                        <TableCell>{appt.staff_name}</TableCell>
+                                                        <TableCell>
+                                                            {/*<Chip*/}
+                                                            {/*    label={appt.status}*/}
+                                                            {/*    color={*/}
+                                                            {/*        appt.status === "pending"*/}
+                                                            {/*            ? "warning"*/}
+                                                            {/*            : appt.status === "confirmed"*/}
+                                                            {/*                ? "success"*/}
+                                                            {/*                : "default"*/}
+                                                            {/*    }*/}
+                                                            {/*/>*/}
+                                                            <span
+                                                                className={`px-2 py-1 rounded-full text-sm font-semibold
+                                                                ${appt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                                    appt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                                                        'bg-red-100 text-red-700'}`}
+                                                            >
+                                                            {appt.status}
+                                                            </span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                ) : (
+                                    <Typography>No appointments found.</Typography>
+                                )}
+                            </Paper>
+                        </Grid>
 
-                        {diagnosedTests.length === 0 ? (
-                            <p className="text-gray-600">No diagnoses available yet.</p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-auto border border-gray-200">
-                                    <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="text-left px-4 py-2 border">Staff Member</th>
-                                        <th className="text-left px-4 py-2 border">Diagnosis</th>
-                                        <th className="text-left px-4 py-2 border">Lab Test</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {diagnosedTests.map(test => (
-                                        <tr key={test.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border">{test.staff_name}</td>
-                                            <td className="px-4 py-2 border">{test.diagnosis || "No diagnosis yet"}</td>
-                                            <td className="px-4 py-2 border">
-                                                {downloadLinks[test.id] ? (
-                                                    <a
-                                                        href={downloadLinks[test.id]}
-                                                        download
-                                                        className="text-blue-600 underline"
-                                                    >
-                                                        Download PDF
-                                                    </a>
-                                                ) : (
-                                                    <button
-                                                        onClick={async () => {
-                                                            const url = await getDownloadLink(test.id);
-                                                            if (url) {
-                                                                setDownloadLinks((prev) => ({ ...prev, [test.id]: url }));
-                                                            }
-                                                        }}
-                                                        className="text-blue-600 underline"
-                                                    >
-                                                        Get Download Link
-                                                    </button>
-                                                )}
-                                            </td>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Paper elevation={6} sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+                                <Typography variant="h6" color="primary" gutterBottom>
+                                    My Diagnoses
+                                </Typography>
+                                {diagnosedTests.length ? (
+                                    <TableContainer sx={{ maxHeight: "28vh" }}>
+                                        <Table stickyHeader size="small">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell><strong>Staff Member</strong></TableCell>
+                                                    <TableCell><strong>Diagnosis</strong></TableCell>
+                                                    <TableCell><strong>Lab Test</strong></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {diagnosedTests.map((test) => (
+                                                    <TableRow key={test.id}>
+                                                        <TableCell>{test.staff_name}</TableCell>
+                                                        <TableCell>{test.diagnosis || "No diagnosis yet"}</TableCell>
+                                                        <TableCell>
+                                                            {downloadLinks[test.id] ? (
+                                                                <Button
+                                                                    href={downloadLinks[test.id]}
+                                                                    target="_blank"
+                                                                    variant="outlined"
+                                                                >
+                                                                    Download PDF
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    onClick={async () => {
+                                                                        const url = await getDownloadLink(test.id);
+                                                                        if (url) {
+                                                                            setDownloadLinks(prev => ({ ...prev, [test.id]: url }));
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    Get Download Link
+                                                                </Button>
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                ) : (
+                                    <Typography>No diagnoses available yet.</Typography>
+                                )}
+                            </Paper>
+                        </Grid>
 
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
+                        {/* Book Appointment + File Upload side by side */}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Paper elevation={6} sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+                                <Typography variant="h6" color="primary" gutterBottom>
+                                    Book New Appointment
+                                </Typography>
+                                <Box component="form" onSubmit={handleSubmit}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel>Staff</InputLabel>
+                                        <Select
+                                            value={selectedStaff}
+                                            onChange={(e) => setSelectedStaff(Number(e.target.value))}
+                                            required
+                                        >
+                                            <option value="">-- Choose --</option>
+                                            {staffList.map((s) => (
+                                                <MenuItem key={s.id} value={s.id}>
+                                                    {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
 
+                                    <div>
+                                        <label className="block mb-1 font-medium">Date</label>
+                                        <input
+                                            type="date"
+                                            value={selectedDate}
+                                            onChange={(e) => setSelectedDate(e.target.value)}
+                                            min={new Date().toISOString().split("T")[0]}
+                                            className="w-full border rounded px-3 py-2"
+                                            required
+                                        />
+                                    </div>
 
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        sx={{ mt: 2 }}
+                                        disabled={!selectedStaff || !selectedDate}
+                                    >
+                                        Book Appointment
+                                    </Button>
+                                </Box>
+                                {bookingStatus && (
+                                    <p className="mt-3 text-sm">
+                                        {bookingStatus.includes("successful") ? (
+                                            <Alert className="text-green-600">{bookingStatus}</Alert>
+                                        ) : (
+                                            <Alert className="text-red-600">{bookingStatus}</Alert>
+                                        )}
+                                    </p>
+                                )}
+                            </Paper>
+                        </Grid>
 
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Paper elevation={6} sx={{ p: 3,flexDirection: "column" }}>
+                                <Typography variant="h6" color="primary" gutterBottom>
+                                    Upload Lab Test Results
+                                </Typography>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel>Staff</InputLabel>
+                                    <Select
+                                        value={selectedStaff}
+                                        onChange={(e) => setSelectedStaff(Number(e.target.value))}
+                                        required
+                                    >
+                                        <option value="">-- Choose --</option>
+                                        {staffList.map((s) => (
+                                            <MenuItem key={s.id} value={s.id}>
+                                                {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
 
-                </div>
+                                <Button
+                                    component="label"
+                                    variant="contained"
+                                    startIcon={<CloudUploadIcon />}
+                                >
+                                    {selectedFile ? selectedFile.name : "Select file"}
+                                    <VisuallyHiddenInput
+                                        type="file"
+                                        onChange={handleFileChange}
+                                        accept="application/pdf"
+                                    />
+                                </Button>
 
+                                <Button
+                                    onClick={handleUpload}
+                                    disabled={!selectedFile}
+                                    variant="contained"
+                                    sx={{ bgcolor: "green", ml: 1 }}
+                                >
+                                    Upload
+                                </Button>
 
-            </div>
-        </div>
+                                {uploadStatus && (
+                                    <p className="mt-3 text-sm">
+                                        {uploadStatus.includes("successful") ? (
+                                            <span className="text-green-600">{uploadStatus}</span>
+                                        ) : (
+                                            <span className="text-red-600">{uploadStatus}</span>
+                                        )}
+                                    </p>
+                                )}
+                            </Paper>
+                        </Grid>
+
+                    </Grid>
+                </motion.div>
+            </Container>
+        </Box>
     );
 };
 

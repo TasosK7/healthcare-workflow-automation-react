@@ -100,7 +100,7 @@ const Staff = () => {
 
     return (
         <div>
-            <Topbar />
+            {/*<Topbar />*/}
             <div className="p-8 bg-gray-50 min-h-screen">
                 <div className="max-w-4xl mx-auto space-y-6">
 

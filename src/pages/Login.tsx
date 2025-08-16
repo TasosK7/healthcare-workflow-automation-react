@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth';
+// import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import {
+    Container,
+    Paper,
+    Typography,
+    TextField,
+    Button,
+    Alert,
+    Box,
+    Avatar
+} from "@mui/material";
+import { motion } from "framer-motion";
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -35,48 +47,93 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="max-w-md w-full bg-white shadow-md rounded-lg p-8">
-                <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Healthcare Portal Login</h2>
-
-                {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
-
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your username"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your password"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition duration-200"
+        <Box
+            sx={{
+                minHeight: "100vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #e3f2fd, #bbdefb)",
+            }}
+        >
+            <Container maxWidth="xs">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Paper
+                        elevation={6}
+                        sx={{
+                            p: 4,
+                            borderRadius: 3,
+                            textAlign: "center",
+                        }}
                     >
-                        Login
-                    </button>
-                </form>
-                <div className="text-center mt-4">
-                    <span className="text-sm text-gray-600">Don't have an account? </span>
-                    <button onClick={() => navigate('/register')} className="text-blue-600 hover:underline">Register</button>
-                </div>
-            </div>
-        </div>
+                        <Avatar
+                            sx={{
+                                bgcolor: "transparent",
+                                width: 56,
+                                height: 56,
+                                mx: "auto",
+                                mb: 2,
+                            }}
+                        >
+                            <img
+                                src="/cardiogram.png"
+                                alt="Logo"
+                                style={{ width: 50, height: 50 }}
+                            />
+                        </Avatar>
+
+                        <Typography variant="h5" gutterBottom>
+                            Healthcare Portal Login
+                        </Typography>
+
+                        {error && (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                {error}
+                            </Alert>
+                        )}
+
+                        <Box component="form" onSubmit={handleLogin}>
+                            <TextField
+                                label="Username"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                            <TextField
+                                label="Password"
+                                type="password"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                fullWidth
+                                sx={{ mt: 2, py: 1.2 }}
+                            >
+                                Login
+                            </Button>
+                        </Box>
+
+                        <Typography variant="body2" sx={{ mt: 2 }}>
+                            Don’t have an account?{" "}
+                            <Button variant="text" onClick={() => navigate("/register")}>
+                                Register
+                            </Button>
+                        </Typography>
+                    </Paper>
+                </motion.div>
+            </Container>
+        </Box>
     );
 };
 

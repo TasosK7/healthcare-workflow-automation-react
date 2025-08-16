@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import axios from 'axios';
+import {
+    Container,
+    Paper,
+    Typography,
+    TextField,
+    Button,
+    Alert,
+    Box,
+    Avatar,
+} from "@mui/material";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import {motion} from "framer-motion";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -93,47 +105,115 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="max-w-md w-full bg-white shadow-md rounded-lg p-8">
-                <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Register as Patient</h2>
-                {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
+        <Box
+            sx={{
+                minHeight: "100vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #e3f2fd, #bbdefb)",
+            }}
+        >
+            <Container maxWidth="xs">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Paper elevation={6} sx={{ p: 4, borderRadius: 3, textAlign: "center" }}>
+                        <Avatar
+                            sx={{
+                                bgcolor: "primary.main",
+                                width: 56,
+                                height: 56,
+                                mx: "auto",
+                                mb: 2,
+                            }}
+                        >
+                            <LocalHospitalIcon />
+                        </Avatar>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input name="first_name" value={form.first_name} onChange={handleChange} placeholder="First Name" className="w-full px-4 py-2 border rounded" />
-                    <input name="last_name" value={form.last_name} onChange={handleChange} placeholder="Last Name" className="w-full px-4 py-2 border rounded" />
-                    <input
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-2 border rounded"
-                        placeholder="Email"
-                    />
-                    {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-                    <input
-                        type="text"
-                        name="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="w-full px-4 py-2 border rounded"
-                        placeholder="Username"
-                    />
-                    {usernameError && <p className="text-red-500 text-sm">{usernameError}</p>}
-                    <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" className="w-full px-4 py-2 border rounded" />
-                    <button
-                        type="submit"
-                        disabled={!isFormValid}
-                        className={`w-full py-2 rounded text-white ${
-                            !isFormValid
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                    >
-                        Register
-                    </button>
-                </form>
-            </div>
-        </div>
+                        <Typography variant="h5" gutterBottom>
+                            Register as Patient
+                        </Typography>
+
+                        {error && (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                {error}
+                            </Alert>
+                        )}
+
+                        <Box component="form" onSubmit={handleSubmit}>
+                            <TextField
+                                name="first_name"
+                                label="First Name"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={form.first_name}
+                                onChange={handleChange}
+                            />
+                            <TextField
+                                name="last_name"
+                                label="Last Name"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={form.last_name}
+                                onChange={handleChange}
+                            />
+                            <TextField
+                                type="email"
+                                label="Email"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                error={!!emailError}
+                                helperText={emailError}
+                            />
+                            <TextField
+                                label="Username"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                error={!!usernameError}
+                                helperText={usernameError}
+                            />
+                            <TextField
+                                name="password"
+                                type="password"
+                                label="Password"
+                                fullWidth
+                                required
+                                margin="normal"
+                                value={form.password}
+                                onChange={handleChange}
+                            />
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                fullWidth
+                                disabled={!isFormValid}
+                                sx={{ mt: 2, py: 1.2 }}
+                            >
+                                Register
+                            </Button>
+                        </Box>
+
+                        <Typography variant="body2" sx={{ mt: 2 }}>
+                            Already have an account?{" "}
+                            <Button variant="text" onClick={() => navigate("/login")}>
+                                Login
+                            </Button>
+                        </Typography>
+                    </Paper>
+                </motion.div>
+            </Container>
+        </Box>
     );
 };
 

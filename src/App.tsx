@@ -7,8 +7,14 @@ import Staff from './pages/Staff';
 import Patient from './pages/Patient';
 import Register from './pages/Register';
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import Layout from "./components/Layout.tsx";
 
-const App = () => {
+type AppProps = {
+    darkMode: boolean;
+    toggleDarkMode: () => void;
+};
+
+const App = ({darkMode, toggleDarkMode} : AppProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('authToken'));
 
     useEffect(() => {
@@ -39,7 +45,9 @@ const App = () => {
                     path="/dashboard"
                     element={
                         <ProtectedRoute allowedRoles={['admin', 'hr']}>
-                            <Dashboard />
+                           <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode} >
+                               <Dashboard/>
+                           </Layout>
                         </ProtectedRoute>
                     }
                 />
@@ -47,7 +55,9 @@ const App = () => {
                     path="/departments"
                     element={
                         <ProtectedRoute allowedRoles={['admin', 'hr']}>
-                            <Departments />
+                            <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
+                                <Departments/>
+                            </Layout>
                         </ProtectedRoute>
                     }
                 />
@@ -55,7 +65,9 @@ const App = () => {
                     path="/staff"
                     element={
                         <ProtectedRoute allowedRoles={['staff']}>
-                            <Staff />
+                            <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
+                                <Staff/>
+                            </Layout>
                         </ProtectedRoute>
                     }
                 />
@@ -64,7 +76,9 @@ const App = () => {
                     path="/patient"
                     element={
                         <ProtectedRoute allowedRoles={['patient']}>
-                            <Patient />
+                            <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
+                                <Patient/>
+                            </Layout>
                         </ProtectedRoute>
                     }
                 />
