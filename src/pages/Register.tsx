@@ -29,6 +29,7 @@ const Register = () => {
     const [emailError, setEmailError] = useState("");
     const [username, setUsername] = useState("");
     const [usernameError, setUsernameError] = useState("");
+    const [success, setSuccess] = useState('');
 
     const isFormValid =
         form.first_name.trim() &&
@@ -93,14 +94,16 @@ const Register = () => {
         e.preventDefault();
         try {
             await api.post('/auth/register', {...form, email, username});
-            alert('Registration successful! You can now log in.');
-            navigate('/login');
+            setSuccess('Registration successful! You can now log in.');
+            setError('');
+            setTimeout(() => navigate('/login'), 2000)
         } catch (err) {
             if (axios.isAxiosError(err)) {
                 setError(err.response?.data?.detail || 'Registration failed');
             } else {
                 setError('Registration failed');
             }
+            setSuccess('');
         }
     };
 
@@ -123,25 +126,35 @@ const Register = () => {
                     <Paper elevation={6} sx={{ p: 4, borderRadius: 3, textAlign: "center" }}>
                         <Avatar
                             sx={{
-                                bgcolor: "primary.main",
+                                bgcolor: "transparent",
                                 width: 56,
                                 height: 56,
                                 mx: "auto",
                                 mb: 2,
                             }}
                         >
-                            <LocalHospitalIcon />
+                            <img
+                                src="/cardiogram.png"
+                                alt="Logo"
+                                style={{ width: 50, height: 50 }}
+                            />
                         </Avatar>
 
-                        <Typography variant="h5" gutterBottom>
-                            Register as Patient
+                        <Typography color="primary" variant="h5" gutterBottom>
+                            Register
                         </Typography>
 
+                        {success && (
+                            <Alert severity="success" sx={{ mb: 2 }}>
+                                {success}
+                            </Alert>
+                        )}
                         {error && (
                             <Alert severity="error" sx={{ mb: 2 }}>
                                 {error}
                             </Alert>
                         )}
+
 
                         <Box component="form" onSubmit={handleSubmit}>
                             <TextField

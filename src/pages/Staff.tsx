@@ -1,7 +1,29 @@
 import { useEffect, useState } from "react";
-import Topbar from "../components/Topbar";
+// import Topbar from "../components/Topbar";
 import api from "../services/api";
 import type { Staff } from "../services/users";
+import {
+    Container,
+    Paper,
+    Typography,
+    Box,
+    Grid,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    // Chip,
+    Button,
+    // Select,
+    // MenuItem,
+    // InputLabel,
+    // FormControl,
+    // Alert,
+    TableContainer,
+    TextField
+} from "@mui/material";
+import {motion} from "framer-motion";
 
 interface Appointment {
     id: number;
@@ -99,54 +121,67 @@ const Staff = () => {
 
 
     return (
-        <div>
+        <Box  sx={{
+            minHeight: "100vh",
+            py: 2,
+            background: "linear-gradient(135deg, #e3f2fd, #bbdefb)",
+        }}
+        >
             {/*<Topbar />*/}
-            <div className="p-8 bg-gray-50 min-h-screen">
-                <div className="max-w-4xl mx-auto space-y-6">
+
+            <Container maxWidth={false}
+                       sx={{ px: 4, py: 2, height: "100%", overflow: "auto" }}
+            >
+                <motion.div initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                >
 
                     {/* Profile Card */}
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <h1 className="text-2xl font-bold mb-4">My Profile</h1>
+                    <Paper elevation={6} sx={{ p: 3, mb: 3 }}>
+                        <Typography variant="h6" color="primary" gutterBottom>
+                            My Profile
+                        </Typography>
                         {staff ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-gray-700"><span className="font-semibold">First Name:</span> {staff.first_name}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-700"><span className="font-semibold">Last Name:</span> {staff.last_name}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-700"><span className="font-semibold">Department:</span> {staff.department_name || "No department"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-700"><span className="font-semibold">Role:</span> {staff.role}</p>
-                                </div>
-                            </div>
+                            <Grid container spacing={2}>
+                                <Grid size={{xs: 12, sm: 6}}>
+                                    <Typography><strong>First Name:</strong> {staff.first_name}</Typography>
+                                </Grid>
+                                <Grid size={{xs: 12, sm: 6}}>
+                                    <Typography><strong>Last Name:</strong> {staff.last_name}</Typography>
+                                </Grid>
+                                <Grid size={{xs: 12, sm: 6}}>
+                                    <Typography><strong>Department:</strong> {staff.department_name || "No department"}</Typography>                                </Grid>
+                                <Grid size={{xs: 12, sm: 6}}>
+                                    <Typography><strong>Role:</strong> {staff.role}</Typography>
+                                </Grid>
+                            </Grid>
                         ) : (
-                            <p>Loading profile...</p>
-                        )}
-                    </div>
+                            <Typography>Loading profile...</Typography>                        )}
+                    </Paper>
 
                     {/* Appointments Card */}
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <h2 className="text-xl font-semibold mb-4">My Appointments</h2>
+                    <Paper elevation={6} sx={{ p: 3, mb: 3, display: "flex", flexDirection: "column" }}>
+                        <Typography variant="h6" color="primary" gutterBottom>
+                            My Appointments
+                        </Typography>
                         {appointments.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-auto border border-gray-200">
-                                    <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="text-left px-4 py-2 border">Date</th>
-                                        <th className="text-left px-4 py-2 border">Patient</th>
-                                        <th className="text-left px-4 py-2 border">Status</th>
-                                        <th className="text-left px-4 py-2 border">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <TableContainer sx={{ maxHeight: "28vh" }}>
+                                <Table stickyHeader size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><strong>Date</strong></TableCell>
+                                            <TableCell><strong>Patient</strong></TableCell>
+                                            <TableCell><strong>Status</strong></TableCell>
+                                            <TableCell><strong>Actions</strong></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
                                     {appointments.map(appt => (
-                                        <tr key={appt.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border">{new Date(appt.date).toLocaleDateString()}</td>
-                                            <td className="px-4 py-2 border">{appt.patient_name}</td>
-                                            <td className="px-4 py-2 border">
+                                        <TableRow key={appt.id}>
+                                            <TableCell>{new Date(appt.date).toLocaleDateString()}</TableCell>
+                                            <TableCell>{appt.patient_name}</TableCell>
+                                            <TableCell>
           <span
               className={`px-2 py-1 rounded-full text-sm font-semibold
               ${appt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -156,107 +191,106 @@ const Staff = () => {
           >
             {appt.status}
           </span>
-                                            </td>
-                                            <td className="px-4 py-2 border">
-                                                <div className="flex space-x-2">
-                                                    <button
+                                            </TableCell>
+                                            <TableCell>
+                                                <Box sx={{ display: "flex", gap: 1 }}>
+                                                    <Button
                                                         disabled={appt.status === "confirmed"}
                                                         onClick={() => handleApproveAppointment(appt.id)}
-                                                        className={`px-3 py-1 rounded text-white font-semibold transition ${
-                                                            appt.status === "confirmed"
-                                                                ? "bg-gray-300 cursor-not-allowed"
-                                                                : "bg-blue-600 hover:bg-blue-700"
-                                                        }`}
+                                                        color="primary"
+                                                        variant="contained"
                                                     >
                                                         Approve
-                                                    </button>
+                                                    </Button>
 
-                                                    <button
+                                                    <Button
                                                         disabled={appt.status !== "pending"}
                                                         onClick={() => handleRejectAppointment(appt.id)}
-                                                        className={`px-3 py-1 rounded text-white font-semibold transition ${
-                                                            appt.status !== "pending"
-                                                                ? "bg-gray-300 cursor-not-allowed"
-                                                                : "bg-red-600 hover:bg-red-700"
-                                                        }`}
+                                                        color="error"
+                                                        variant="contained"
                                                     >
                                                         Reject
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                    </Button>
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
                                     ))}
-                                    </tbody>
-                                </table>
+                                    </TableBody>
+                                </Table>
 
-                            </div>
+                            </TableContainer>
                         ) : (
-                            <p className="text-gray-600">No appointments found.</p>
+                            <Typography>No appointments found.</Typography>
                         )}
-                    </div>
+                    </Paper>
 
                     {/* Lab Tests Card */}
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <h2 className="text-xl font-semibold mb-4">Patient Lab Tests</h2>
+                    <Paper elevation={6} sx={{ p: 3, mb: 3, display: "flex", flexDirection: "column" }}>
+                        <Typography variant="h6" color="primary" gutterBottom>
+                            Patient Lab Tests
+                        </Typography>
                         {labTests.length === 0 ? (
-                            <p className="text-gray-600">No pending lab tests.</p>
+                            <Typography>No pending lab tests.</Typography>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-auto border border-gray-200">
-                                    <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="text-left px-4 py-2 border">Patient</th>
-                                        <th className="text-left px-4 py-2 border">Result File</th>
-                                        <th className="text-left px-4 py-2 border">Diagnosis</th>
-                                        <th className="text-left px-4 py-2 border">Submit</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <TableContainer sx={{ maxHeight: "28vh" }}>
+                                <Table stickyHeader size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><strong>Patient</strong></TableCell>
+                                            <TableCell><strong>Result File</strong></TableCell>
+                                            <TableCell><strong>Diagnosis</strong></TableCell>
+                                            <TableCell><strong>Submit</strong></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
                                     {labTests.map(test => (
-                                        <tr key={test.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border">{test.patient_name}</td>
-                                            <td className="px-4 py-2 border">
+                                        <TableRow key={test.id}>
+                                            <TableCell>{test.patient_name}</TableCell>
+                                            <TableCell>
                                                 {downloadLinks[test.id] ? (
-                                                    <a href={downloadLinks[test.id]} download className="text-blue-600 underline">
+                                                    <Button href={downloadLinks[test.id]} target="_blank" variant="outlined">
                                                         Download PDF
-                                                    </a>
+                                                    </Button>
                                                 ) : (
-                                                    <button
+                                                    <Button
                                                         onClick={() => fetchDownloadUrl(test.id)}
-                                                        className="text-blue-600 underline"
+                                                        variant="text"
+                                                        color="primary"
                                                     >
                                                         Get Download Link
-                                                    </button>
+                                                    </Button>
                                                 )}
-                                            </td>
-                                            <td className="px-4 py-2 border">
-                                                <input
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    fullWidth
+                                                    size="small"
                                                     type="text"
-                                                    className="w-full border rounded px-2 py-1"
                                                     placeholder="Enter diagnosis"
                                                     value={diagnosisMap[test.id] || ""}
                                                     onChange={(e) => handleDiagnosisChange(test.id, e.target.value)}
                                                 />
-                                            </td>
-                                            <td className="px-4 py-2 border">
-                                                <button
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button
                                                     onClick={() => handleSubmitDiagnosis(test.id)}
-                                                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                                                    variant="contained"
+                                                    color="primary"
                                                 >
                                                     Submit
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
                                     ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         )}
-                    </div>
+                    </Paper>
 
-                </div>
-            </div>
-        </div>
+                </motion.div>
+            </Container>
+        </Box>
     );
 };
 

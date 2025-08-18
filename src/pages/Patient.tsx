@@ -191,7 +191,7 @@ const Patient = () => {
         >
             <Container
                 maxWidth={false}
-                sx={{ px: 4, py: 2, height: "100%", overflow: "auto" }}  // ✅ auto scroll if needed
+                sx={{ px: 4, py: 2, height: "100%", overflow: "auto" }}
             >
 
             <motion.div
@@ -335,13 +335,17 @@ const Patient = () => {
                                 </Typography>
                                 <Box component="form" onSubmit={handleSubmit}>
                                     <FormControl fullWidth margin="normal">
-                                        <InputLabel>Staff</InputLabel>
+                                        <InputLabel id="appointment-staff-label">Staff</InputLabel>
                                         <Select
+                                            labelId="appointment-staff-label"
                                             value={selectedStaff}
                                             onChange={(e) => setSelectedStaff(Number(e.target.value))}
+                                            label="Staff"   // ✅ This is the key!
                                             required
                                         >
-                                            <option value="">-- Choose --</option>
+                                            <MenuItem value="" disabled>
+                                                -- Choose --
+                                            </MenuItem>
                                             {staffList.map((s) => (
                                                 <MenuItem key={s.id} value={s.id}>
                                                     {s.first_name} {s.last_name} ({s.role}, {s.department_name || "No department"})
@@ -349,6 +353,8 @@ const Patient = () => {
                                             ))}
                                         </Select>
                                     </FormControl>
+
+
 
                                     <div>
                                         <label className="block mb-1 font-medium">Date</label>
@@ -362,24 +368,26 @@ const Patient = () => {
                                         />
                                     </div>
 
-                                    <Button
-                                        type="submit"
-                                        variant="contained"
-                                        sx={{ mt: 2 }}
-                                        disabled={!selectedStaff || !selectedDate}
-                                    >
-                                        Book Appointment
-                                    </Button>
-                                </Box>
-                                {bookingStatus && (
-                                    <p className="mt-3 text-sm">
-                                        {bookingStatus.includes("successful") ? (
-                                            <Alert className="text-green-600">{bookingStatus}</Alert>
-                                        ) : (
-                                            <Alert className="text-red-600">{bookingStatus}</Alert>
+                                    <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            disabled={!selectedStaff || !selectedDate}
+                                        >
+                                            Book Appointment
+                                        </Button>
+
+                                        {bookingStatus && (
+                                            <Alert
+                                                severity={bookingStatus.includes("successful") ? "success" : "error"}
+                                                sx={{ ml: 2, py: 0, px: 1.5, whiteSpace: "nowrap", width: "auto" }}
+                                            >
+                                                {bookingStatus}
+                                            </Alert>
                                         )}
-                                    </p>
-                                )}
+                                    </Box>
+
+                                </Box>
                             </Paper>
                         </Grid>
 

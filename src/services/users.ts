@@ -22,7 +22,25 @@ export const getAllStaff = async (): Promise<Staff[]> => {
     return res.data;
 };
 
-export const getAllPatients = async (): Promise<Patient[]> => {
-    const res = await api.get('/patients');
+
+export const createStaffUser = async (username: string, email: string, password: string, contact_info?: string) => {
+    const res = await api.post("/users/register", {
+        username,
+        email,
+        password,
+        role: "staff",
+        contact_info
+    });
     return res.data;
 };
+
+export const createPatientUser = async (username: string, email: string, password: string, contact_info?: string)=> {
+    const res = await api.post("/users/register", {
+        username,
+        email,
+        password,
+        role: "patient",
+        contact_info
+    });
+    return res.data;
+}

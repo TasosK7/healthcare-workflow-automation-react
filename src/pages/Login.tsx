@@ -87,8 +87,13 @@ const Login = () => {
                         </Avatar>
 
                         <Typography variant="h5" gutterBottom>
-                            Healthcare Portal Login
+                            Healthcare Portal
                         </Typography>
+
+                        <Typography color="primary" variant="h5" gutterBottom>
+                            Login
+                        </Typography>
+
 
                         {error && (
                             <Alert severity="error" sx={{ mb: 2 }}>
