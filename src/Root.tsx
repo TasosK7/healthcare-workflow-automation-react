@@ -6,14 +6,17 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export default function Root() {
-    const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
-    return (
-        <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
-            <CssBaseline />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <App darkMode={darkMode} toggleDarkMode={() => setDarkMode(!darkMode)}/>
-            </LocalizationProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <App
+          darkMode={darkMode}
+          toggleDarkMode={() => setDarkMode(!darkMode)}
+        />
+      </LocalizationProvider>
+    </ThemeProvider>
+  );
 }
